@@ -47,37 +47,44 @@ class ICC(object):
     def getOutput(self):
         self.__debugText("Got Output: " + str(self.output))
         return self.output
-    
+                    
     def run(self):
         pos = 0
-    
+
         while pos <= len(self.memory):
-            opcode = self.memory[pos]
+
+            # Parse opCode and parameter modes
+            code = str(self.memory[pos])            
+            opcode = int(code[-2:])            
+            paramMode = [int(m) for m in code[:-2][::-1]]
+            while len(paramMode) < 3:
+                paramMode.append(0)
+            reversed(paramMode)
+
+            self.__debugText("Opcode: " + str(opcode) + ", Mode: " + str(paramMode))  
 
             if opcode == 99: # Program end
                 self.__debugText("Program ran succesfull. (opcode 99)")            
                 return 0
-
-            param1 = self.memory[pos+1]
-            #param2 = self.memory[pos+2]
-            #param3 = self.memory[pos+3]
-            #self.__debugText("Instruction: " + str(self.memory[pos:pos+4]))
-
             if int(opcode) == 1: # Addition
-                self.memory[param3] = self.memory[param1] + self.memory[param2]
+                param = [self.memory[pos+1], self.memory[pos+2], self.memory[pos+3]]
+                self.memory[param[2]] = param[0] + param[1]
                 pos += 4
-            elif opcode == 2: # Multiplication  
-                self.memory[param3] = self.memory[param1] * self.memory[param2]
+            elif opcode == 2: # Multiplication
+                param = [self.memory[pos+1], self.memory[pos+2], self.memory[pos+3]]
+                self.memory[param[2]] = param[0] * param[1]
                 pos += 4
             elif opcode == 3: # Input
-                self.memory[param1] = self.input
+                param = [self.memory[pos+1]]
+                self.memory[param[0]] = self.input
                 pos += 2
             elif opcode == 4: # Output
-                self.output = self.memory[param1]
+                param = [self.memory[pos+1]]
+                self.output = self.memory[param[0]]
                 pos += 2
             else:
                 self.__debugText("Program encountered unknown opcode: " + str(opcode))                
                 return 1
-
+            
         self.__debugText("Program ended unexpected.")
         return 2
