@@ -10,13 +10,13 @@ def readProgramFromFile(filename):
 
 cpu = computer.ICC(1)
 
-#program = readProgramFromFile('input.txt')
-program = [1002,4,3,4,33]
+program = readProgramFromFile('input.txt')
+#program = []
 
 cpu.setMemory(program)
 cpu.setMemoryAsRom()
 
-cpu.setInput(15)
+cpu.setInput(5)
 
 cpu.run()
 
