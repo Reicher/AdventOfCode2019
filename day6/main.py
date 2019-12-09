@@ -11,9 +11,11 @@ class OrbitalObject(object):
     def __init__(self, name, checksum = 0, debug = 0):
         self.debug = debug
         self.name = name
+        self.dad = 0
+        self.cost = -1
         self.checksum = checksum
         self.satelites = []
-        self.fucked = False
+        self.visited = False
         self.__debugText("Created")  
 
 class OrbitalTree(object):
@@ -23,6 +25,7 @@ class OrbitalTree(object):
             
     def __init__(self, debug = 0):
         self.debug = debug
+        self.found = False
         self.root  = OrbitalObject("COM", 0)
 
     def findObject(self, orbitalName, orbits):
@@ -59,26 +62,28 @@ class OrbitalTree(object):
         return sum
 
     def findSAN(self, position, cost = 0):
-        print("at pos: " + position.name + " with cost " + str(cost))
-        if position.name == "SAN":
-            return cost
-        elif not position.fucked:
-            position.fucked = True
-            for sat in position.satelites:
-                cost += self.findSAN(sat, cost)
-        else:
-            self.findSAN(position.dad, cost)
-            
-        return cost
-            
-            
+        #print("at pos: " + position.name)
+
+        if not position.visited:
+            #print("New cost: " + str(cost))
+            position.cost = cost
+            position.visited = True
+            if len(position.satelites) > 0:
+                for sat in position.satelites:
+                    if not sat.visited:
+                        self.findSAN(sat, position.cost+1)
+            if position.dad:
+                self.findSAN(position.dad, position.cost+1)
+        elif position.dad:
+            self.findSAN(position.dad, position.cost+1)                    
+
 def readProgramFromFile(filename):
     with open(filename, 'r') as fp:
         return [x.strip().split(')') for x in fp.readlines()]
 
 ##############################################################################
 
-orbitMap= readProgramFromFile('sample.txt')
+orbitMap= readProgramFromFile('input.txt')
 tree = OrbitalTree(0);
 
 while orbitMap:
@@ -88,7 +93,8 @@ while orbitMap:
             orbitsLeft.append(pair)
     orbitMap = orbitsLeft
 
-you = tree.findObject('YOU', [tree.root])
-print(tree.findSAN(you))
+you = tree.findObject('YOU', [tree.root]).dad
+tree.findSAN(you)
+print(tree.findObject('SAN', [tree.root]).dad.cost)
 
 #print("checksum: " + str())
