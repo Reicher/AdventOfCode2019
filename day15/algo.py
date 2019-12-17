@@ -1,7 +1,9 @@
 class Node(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, parent = None):
         self.x = x
         self.y = y
+
+        self.parent = parent
         
         self.f = 0
         self.g = 0
@@ -13,18 +15,18 @@ class Node(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __str__(self, other):
+    def __repr__(self):
         return "(" + str(self.x) + ", " + str(self.y) + ")"
 
     def getChildren(self, room):
-        children= [ Node(self.x, self.y-1),
-                    Node(self.x, self.y+1),
-                    Node(self.x-1, self.y),
-                    Node(self.x+1, self.y)]
+        children= [ Node(self.x, self.y-1, self),
+                    Node(self.x, self.y+1, self),
+                    Node(self.x-1, self.y, self),
+                    Node(self.x+1, self.y, self)]
         
         good_children = []
         for child in children:
-            if room[child.x][child.y] != "#":
+            if room[child.x][child.y] != 0:
                 good_children.append(child)
         return good_children
 
@@ -43,7 +45,7 @@ def getLeastFNode(aList):
 
 def printWay(way):
     for n in way:
-        print(n.x, n.y)
+        print(n)
 
 # S = Start
 # # = Block
@@ -62,8 +64,12 @@ def Astar(start, end, room):
 
         # FOUND END
         if current == end:
-            printWay(closedList)
-            return closedList
+            path = []
+            c = current
+            while c is not None:
+                path.append(c)
+                c = c.parent
+            return path[::-1] # Return reversed path
 
         children = current.getChildren(room)
         for child in children:

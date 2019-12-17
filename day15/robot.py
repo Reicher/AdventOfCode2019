@@ -15,6 +15,7 @@ class Repair(object):
         
         self.position = [25, 25]
         self.start = [25, 25]
+        self.ox = []
         self.cmd = 0
 
     def showMap(self):
@@ -41,7 +42,7 @@ class Repair(object):
         self.map[pos[0]][pos[1]] = state
 
     def run(self):
-        while self.cpu.run():
+        while self.cpu.run() != 1:
             # INPUT
             if self.cpu.state == computer.STATE.WAITING:
                 dire = []
@@ -66,10 +67,12 @@ class Repair(object):
                 self.position = self.getPos()
                 
                 if output == 2:
+                    self.ox = self.position.copy()
                     print("Found oxygene unit at " + str(self.position))
-                    directions = algo.Astar(self.start, self.position, self.map)
-                    print(directions)
-                    print("length: " + str(len(directions)))
-                    self.showMap()
-                    return
-            
+                    #directions = algo.Astar(self.start, self.position, self.map)
+                    #print(directions)
+                    #print("length: " + str(len(directions)))
+                    #self.showMap()
+                    #return
+                    
+        return self.map

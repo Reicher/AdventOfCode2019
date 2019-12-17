@@ -23,7 +23,7 @@ class ICC(object):
         self.output = 0
 
         self.cycles = 0
-        self.max_cycles = 5000000
+        self.max_cycles = 10000000
 
         self.state = STATE.INITIALIZED
         
@@ -36,6 +36,7 @@ class ICC(object):
     def __get(self, adress):
         if adress >= self.mem_size:
             self.__debugText("Out of memory", 1)
+            self.state = STATE.ERROR
             return 1
         self.__debugText("Get memory at adress: [" + str(adress)
                          + " : " + str(self.memory[adress]) + "]")
@@ -48,6 +49,7 @@ class ICC(object):
         
         if adress >= self.mem_size:
             self.__debugText("Out of memory", 1)
+            self.state = STATE.ERROR
             return 1        
         self.__debugText("Set memory at adress: [" + str(adress)
                          + " : from " + str(self.memory[adress])
@@ -66,6 +68,7 @@ class ICC(object):
             return self.__get(param + self.rbo)
         else:
             self.__debugText("Unknown mode: " + str(mode), 1)
+            self.state = STATE.ERROR
             return 1
             
     def setMemory(self, memory):
@@ -120,7 +123,7 @@ class ICC(object):
                 self.__debugText("Program ran succesfull. (opcode 99)")
                 self.state = STATE.COMPLETED
                 return 0
-            if opcode == 1: # Addition
+            elif opcode == 1: # Addition
                 self.__debugText("1: Addition")
                 param = [self.__get(self.pos+1), self.__get(self.pos+2), self.__get(self.pos+3)]
                 self.__set(param[2], mode[2], self.__getValue(param[0], mode[0]) + self.__getValue(param[1], mode[1]))
@@ -188,7 +191,7 @@ class ICC(object):
 
             if self.cycles > self.max_cycles:
                 self.__debugText("Program reached max allowed cycles: " + str(self.max_cycles), 1)
-                self.state = STATE.TERMINATED
+                self.state = STATE.ERROR
                 return 1
             
             self.cycles += 1
